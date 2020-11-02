@@ -1,13 +1,21 @@
 #! /usr/bin/python
+'''
+Port Scanner
+'''
+__author__ = "Michael Jiles"
+__version__ = "Fall 2020"
 import multiprocessing
 import socket
 import sys
 
 def scan(ip_address, start_port, end_port):
+    '''
+    Scans the passed in range of ports and creates a
+    dictionary of ports and whether or not they are open
+    '''
     proc_list = []
     port_dict = {}
     receiver, sender = multiprocessing.Pipe()
-    print(ip_address)
 
     for val, port in enumerate(range(start_port, end_port), 1):
         proc = multiprocessing.Process(name=(
@@ -26,9 +34,11 @@ def scan(ip_address, start_port, end_port):
 
 
 def scan_single_port(ip_address, port, sender):
+    '''
+    Scans a single port and sends a value from the sender for whether or not the port is open
+    '''
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     response = sock.connect_ex((ip_address, port))
-    print(response)
     if response == 0:
         sender.send([port, True])
     else:
@@ -38,6 +48,8 @@ def scan_single_port(ip_address, port, sender):
 if __name__ == "__main__":
     ip = sys.argv[1]
     start = int(sys.argv[2])
-    end = int(sys.argv[3])
-
-    print(scan(ip, start, end))
+    if len(sys.argv) == 4:
+        end = int(sys.argv[3])
+        print(scan(ip, start, end + 1))
+    else:
+        print(scan(ip, start, start + 1))
